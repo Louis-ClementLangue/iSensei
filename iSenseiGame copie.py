@@ -43,15 +43,19 @@ class iSensei(object):
         try:
             self.start()
             i = 0
-            self.tab = []
+            self.tabTraining = []
+            self.tabTarget = []
             while i < nbEntrainement:
                 print(i)
-                self.win_turn = np.copy(self.board)
+                #self.win_turn = np.copy(self.board)
                 # Let the bot play
                 self.play()
+                self.win_turn = np.copy(self.board)
                 # Check if there is a winner
                 if self.check_win(self.lastPosition, self.player):
-                    self.tab.append([self.last_turn, self.findLastMovement(self.last_turn, self.win_turn)])
+                    #self.tab.append([self.last_turn, self.findLastMovement(self.last_turn, self.win_turn)])
+                    self.tabTraining.append(self.last_turn)
+                    self.tabTarget.append(self.findLastMovement(self.last_turn,self.win_turn))
                     i += 1
                     print(ai_player_1.name if self.player else ai_player_2.name,
                           "(O)" if self.player else "(X)",
@@ -60,7 +64,9 @@ class iSensei(object):
 
                 # No winner but no more cells. Find the longest aligned sequence for each player
                 elif len(self.get_available_cells()) == 0:
-                    self.tab.append([self.last_turn, self.findLastMovement(self.last_turn, self.win_turn)])
+                    #self.tab.append([self.last_turn, self.findLastMovement(self.last_turn, self.win_turn)])
+                    self.tabTraining.append(self.last_turn)
+                    self.tabTarget.append(self.findLastMovement(self.last_turn, self.win_turn))
                     i += 1
                     print("DRAW")
                     print("X: ", self.check_win_by_points(False))
@@ -163,8 +169,7 @@ class iSensei(object):
         return best
 
     def findLastMovement(self, last_turn, win_turn):
-        res = win_turn - last_turn
-        res = res / np.amax(win_turn)
+        res = (last_turn - win_turn) / np.amax(win_turn)
         return res
 
     def __call__(self, nbEntrainement):
@@ -173,11 +178,12 @@ class iSensei(object):
 
 if __name__ == "__main__":
     partie = iSensei()
-    partie(100)
-    train = partie.tab[:, 0]
-    target = partie.tab[:, 1]
-    train_data = np.array(train[0]).reshape(49)
-    target_data = np.array(target[0]).reshape(49)
+    partie(10)
+    train = partie.tabTraining
+    target = partie.tabTarget
+    train_data = np.array(train)[0].reshape(49)
+    target_data = np.array(target)[0].reshape(49)
     newReseau = net(False)
-    net.training(train_data, target_data)
+    net.training(self=net, train_Data=train_data, target_data=target_data)
     net.save()
+

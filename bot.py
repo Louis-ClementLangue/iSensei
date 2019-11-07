@@ -9,7 +9,6 @@ from keras.optimizers import Adam
 
 # Put your bot name here
 name = "Langue"
-ia = Sequential()
 
 
 # Bender strategy : return the first element in the available cells.
@@ -20,6 +19,7 @@ class net(object):
         if not reseauExistant:     # On regarde si le reseau de nerones existe deja ou si il faut le creer
             self.opt = Adam(lr=0.1, beta_1=0.9, beta_2=0.999)
             self.model = Sequential()
+            print("model created")
         else:
             self.model = load_model("reseauLangue.H5")
 
